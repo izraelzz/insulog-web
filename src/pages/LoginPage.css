@@ -155,8 +155,16 @@
   text-decoration: underline;
 }
 
-.primary-button,
-.secondary-button {
+.text-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.login-page .primary-button,
+.login-page .secondary-button {
   min-height: 45px;
   border-radius: 12px;
   font-size: 14px;
@@ -164,7 +172,7 @@
   cursor: pointer;
 }
 
-.primary-button {
+.login-page .primary-button {
   width: 100%;
   border: 1px solid var(--primary);
   background: var(--primary);
@@ -172,14 +180,26 @@
   transition: background 150ms ease, border-color 150ms ease;
 }
 
-.primary-button:hover:not(:disabled) {
+.login-page .primary-button:hover:not(:disabled) {
   border-color: var(--primary-dark);
   background: var(--primary-dark);
 }
 
-.primary-button:disabled {
+.login-page .primary-button:disabled {
   cursor: wait;
   opacity: 0.7;
+}
+
+.login-error {
+  margin: 0 0 14px;
+  color: #b42318;
+  font-size: 13px;
+}
+
+.login-success {
+  margin: 0 0 14px;
+  color: var(--primary-dark);
+  font-size: 13px;
 }
 
 .divider {
