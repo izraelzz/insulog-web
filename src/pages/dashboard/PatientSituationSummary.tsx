@@ -1,5 +1,6 @@
 import { CircleAlert, CircleCheck, TriangleAlert } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import type { DoctorPatient } from '../../services/patientService'
 
 type PatientSituation = {
   title: string
@@ -9,17 +10,24 @@ type PatientSituation = {
   icon: LucideIcon
 }
 
-const patientSituations: PatientSituation[] = [
-  { title: 'Controle adequado', count: 62, percentage: 72, tone: 'adequate', icon: CircleCheck },
-  { title: 'Atenção', count: 17, percentage: 20, tone: 'attention', icon: TriangleAlert },
-  { title: 'Situação crítica', count: 7, percentage: 8, tone: 'critical', icon: CircleAlert },
-]
+type PatientSituationSummaryProps = { patients: DoctorPatient[] }
 
-function PatientSituationSummary() {
+function PatientSituationSummary({ patients }: PatientSituationSummaryProps) {
+  const counts: Record<PatientSituation['tone'], number> = {
+    adequate: patients.filter((patient) => patient.situacao === 'adequado').length,
+    attention: patients.filter((patient) => patient.situacao === 'atencao').length,
+    critical: patients.filter((patient) => patient.situacao === 'critico').length,
+  }
+  const patientSituations: PatientSituation[] = [
+    { title: 'Controle adequado', count: counts.adequate, percentage: patients.length ? Math.round(counts.adequate / patients.length * 100) : 0, tone: 'adequate', icon: CircleCheck },
+    { title: 'Atenção', count: counts.attention, percentage: patients.length ? Math.round(counts.attention / patients.length * 100) : 0, tone: 'attention', icon: TriangleAlert },
+    { title: 'Situação crítica', count: counts.critical, percentage: patients.length ? Math.round(counts.critical / patients.length * 100) : 0, tone: 'critical', icon: CircleAlert },
+  ]
+
   return (
     <section className="dashboard-card patient-situation-card" aria-labelledby="patient-situation-title">
       <div className="card-heading">
-        <div><h2 id="patient-situation-title">Situação dos pacientes</h2><p>Resumo dos 86 pacientes acompanhados</p></div>
+        <div><h2 id="patient-situation-title">Situação dos pacientes</h2><p>Resumo dos {patients.length} pacientes vinculados</p></div>
       </div>
       <div className="patient-situation-grid">
         {patientSituations.map((situation) => {

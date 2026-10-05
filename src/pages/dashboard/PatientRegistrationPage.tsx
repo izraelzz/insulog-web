@@ -1,23 +1,34 @@
 import { useState } from 'react'
 import { Activity, Check, Copy, UserPlus } from 'lucide-react'
+import { createPatientInvite } from '../../services/patientService'
 
-function PatientRegistrationPage() {
-  const [linkCode, setLinkCode] = useState<string | null>(null)
+type PatientRegistrationPageProps = { token: string }
+
+function PatientRegistrationPage({ token }: PatientRegistrationPageProps) {
+  const [invite, setInvite] = useState<{ codigo: string; expira_em: string } | null>(null)
   const [copied, setCopied] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  function addPatient() {
-    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-    const randomValues = crypto.getRandomValues(new Uint8Array(6))
-    const code = Array.from(randomValues, (value) => alphabet[value % alphabet.length]).join('')
-    setLinkCode(`INSU-${code}`)
+  async function addPatient() {
+    setIsCreating(true)
+    setErrorMessage('')
     setCopied(false)
+
+    try {
+      setInvite(await createPatientInvite(token))
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Não foi possível gerar o código de vínculo.')
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   async function copyLinkCode() {
-    if (!linkCode) return
+    if (!invite) return
 
     try {
-      await navigator.clipboard.writeText(linkCode)
+      await navigator.clipboard.writeText(invite.codigo)
       setCopied(true)
     } catch {
       setCopied(false)
@@ -32,22 +43,23 @@ function PatientRegistrationPage() {
       <div className="registration-layout">
         <section className="dashboard-card registration-card" aria-labelledby="registration-title">
           <div className="registration-step"><span>1</span><div><h2 id="registration-title">Vínculo do paciente</h2><p>Não é necessário preencher dados pessoais nesta etapa.</p></div></div>
-          {linkCode ? (
+          {invite ? (
             <div className="generated-code-panel" role="status" aria-live="polite">
               <span className="generated-code-label">Código de vínculo</span>
-              <strong className="generated-code">{linkCode}</strong>
-              <p>Compartilhe este código com o paciente para ele conectar a conta no aplicativo.</p>
+              <strong className="generated-code">{invite.codigo}</strong>
+              <p>Compartilhe com o paciente. O código expira em {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(invite.expira_em))} e só pode ser usado uma vez.</p>
               <div className="code-actions">
                 <button className="primary-button" type="button" onClick={copyLinkCode}>{copied ? <Check /> : <Copy />}{copied ? 'Código copiado' : 'Copiar código'}</button>
-                <button className="outline-button" type="button" onClick={addPatient}>Adicionar outro paciente</button>
+                <button className="outline-button" type="button" onClick={addPatient} disabled={isCreating}>{isCreating ? 'Gerando...' : 'Gerar outro código'}</button>
               </div>
             </div>
           ) : (
             <div className="registration-empty">
               <span className="registration-icon"><UserPlus /></span>
               <h3>Pronto para criar um vínculo?</h3>
-              <p>Ao adicionar o paciente, um código exclusivo será gerado para conectar o aplicativo.</p>
-              <button className="primary-button" type="button" onClick={addPatient}><UserPlus />Adicionar paciente</button>
+              <p>Gere um código exclusivo para o paciente conectar a conta no aplicativo.</p>
+              {errorMessage && <p className="registration-error" role="alert">{errorMessage}</p>}
+              <button className="primary-button" type="button" onClick={addPatient} disabled={isCreating}>{isCreating ? 'Gerando código...' : <><UserPlus />Adicionar paciente</>}</button>
             </div>
           )}
         </section>
@@ -55,7 +67,7 @@ function PatientRegistrationPage() {
           <span className="registration-info-icon"><Activity /></span>
           <h2>Vínculo com o app</h2>
           <p>O paciente informa o código no Insulog mobile para conectar a conta ao seu acompanhamento.</p>
-          <div className="link-status"><span className={linkCode ? 'status-dot ready' : 'status-dot'} />{linkCode ? 'Código pronto para compartilhar' : 'Aguardando geração do código'}</div>
+          <div className="link-status"><span className={invite ? 'status-dot ready' : 'status-dot'} />{invite ? 'Código pronto para compartilhar' : 'Aguardando geração do código'}</div>
         </aside>
       </div>
     </>

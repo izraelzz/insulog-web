@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   ChartNoAxesCombined,
@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react'
 import type { AuthenticatedUser } from '../services/authService'
+import { fetchDoctorPatients, type DoctorPatient } from '../services/patientService'
 import PatientAlertsPage from './dashboard/PatientAlertsPage'
 import DashboardHome from './dashboard/DashboardHome'
 import DoctorProfilePage from './dashboard/DoctorProfilePage'
@@ -28,6 +29,10 @@ type DashboardPageProps = {
 
 function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
   const [activeScreen, setActiveScreen] = useState<Screen>('dashboard')
+  const [patients, setPatients] = useState<DoctorPatient[]>([])
+  const [patientsLoading, setPatientsLoading] = useState(true)
+  const [patientsError, setPatientsError] = useState('')
+  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null)
   const initials = user.username
     .trim()
     .split(/\s+/)
@@ -36,32 +41,80 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
     .join('')
     .toUpperCase()
 
+  useEffect(() => {
+    let isCurrent = true
+
+    fetchDoctorPatients(user.token)
+      .then((result) => {
+        if (isCurrent) setPatients(result)
+      })
+      .catch((error: unknown) => {
+        if (isCurrent) setPatientsError(error instanceof Error ? error.message : 'Não foi possível carregar os pacientes.')
+      })
+      .finally(() => {
+        if (isCurrent) setPatientsLoading(false)
+      })
+
+    return () => { isCurrent = false }
+  }, [user.token])
+
+  const selectedPatient = patients.find((patient) => patient.id === selectedPatientId) ?? null
+
+  async function refreshPatients() {
+    setPatientsLoading(true)
+    setPatientsError('')
+
+    try {
+      setPatients(await fetchDoctorPatients(user.token))
+    } catch (error) {
+      setPatientsError(error instanceof Error ? error.message : 'Não foi possível carregar os pacientes.')
+    } finally {
+      setPatientsLoading(false)
+    }
+  }
+
   function renderActiveScreen() {
     switch (activeScreen) {
       case 'cadastrar':
-        return <PatientRegistrationPage />
+        return <PatientRegistrationPage token={user.token} />
       case 'pacientes':
         return <PatientsPage
+          patients={patients}
+          loading={patientsLoading}
+          error={patientsError}
           onAddPatient={() => setActiveScreen('cadastrar')}
-          onOpenProfile={() => setActiveScreen('perfil')}
-          onOpenRecords={() => setActiveScreen('registros')}
+          onRefresh={refreshPatients}
+          onOpenProfile={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('perfil') }}
+          onOpenRecords={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('registros') }}
         />
       case 'perfil':
-        return <PatientProfilePage
+        return selectedPatient ? <PatientProfilePage
+          key={`${selectedPatient.id}-${user.token}`}
+          patient={selectedPatient}
+          token={user.token}
           onOpenRecords={() => setActiveScreen('registros')}
           onBackToPatients={() => setActiveScreen('pacientes')}
-        />
+        /> : <p className="empty-results">Selecione um paciente vinculado para ver o perfil.</p>
       case 'registros':
-        return <PatientRecordsPage onBackToProfile={() => setActiveScreen('perfil')} />
+        return selectedPatient ? <PatientRecordsPage
+          key={`${selectedPatient.id}-${user.token}`}
+          patientId={selectedPatient.id}
+          patientName={selectedPatient.nome}
+          token={user.token}
+          onBackToProfile={() => setActiveScreen('perfil')}
+        /> : <p className="empty-results">Selecione um paciente vinculado para ver os registros.</p>
       case 'alertas':
-        return <PatientAlertsPage onOpenProfile={() => setActiveScreen('perfil')} />
+        return <PatientAlertsPage patients={patients} loading={patientsLoading} error={patientsError} onOpenProfile={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('perfil') }} />
       case 'perfil-medico':
         return <DoctorProfilePage user={user} onSave={onUpdateUser} onCancel={() => setActiveScreen('dashboard')} />
       default:
         return <DashboardHome
           username={user.username}
+          patients={patients}
+          patientsLoading={patientsLoading}
+          patientsError={patientsError}
           onOpenAlerts={() => setActiveScreen('alertas')}
-          onOpenProfile={() => setActiveScreen('perfil')}
+          onOpenProfile={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('perfil') }}
         />
     }
   }

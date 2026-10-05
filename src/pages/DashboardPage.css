@@ -290,6 +290,9 @@
 .patients-toolbar > div { min-width: 0; }
 .patients-toolbar h1 { white-space: nowrap; }
 .patients-toolbar > .primary-button { width: auto; min-width: max-content; }
+.patients-toolbar-actions { display: flex; align-items: center; gap: 8px; }
+.patients-toolbar-actions .outline-button { min-height: 38px; display: inline-flex; align-items: center; gap: 7px; }
+.patients-toolbar-actions svg { width: 15px; height: 15px; }
 .directory-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
 .directory-filters .patient-search { width: min(320px, 100%); }
 .select-filter { min-height: 38px; display: inline-flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--muted); font-size: 11.5px; font-weight: 600; }
@@ -299,12 +302,11 @@
 .data-table { width: 100%; min-width: 800px; border-collapse: collapse; color: var(--ink); font-size: 12.5px; text-align: left; }
 .patients-table { min-width: 960px; table-layout: fixed; }
 .patients-table th:nth-child(1), .patients-table td:nth-child(1) { width: 27%; }
-.patients-table th:nth-child(2), .patients-table td:nth-child(2) { width: 9%; }
-.patients-table th:nth-child(3), .patients-table td:nth-child(3) { width: 9%; }
-.patients-table th:nth-child(4), .patients-table td:nth-child(4) { width: 15%; }
-.patients-table th:nth-child(5), .patients-table td:nth-child(5) { width: 14%; }
-.patients-table th:nth-child(6), .patients-table td:nth-child(6) { width: 15%; }
-.patients-table th:nth-child(7), .patients-table td:nth-child(7) { width: 11%; }
+.patients-table th:nth-child(2), .patients-table td:nth-child(2) { width: 19%; }
+.patients-table th:nth-child(3), .patients-table td:nth-child(3) { width: 15%; }
+.patients-table th:nth-child(4), .patients-table td:nth-child(4) { width: 17%; }
+.patients-table th:nth-child(5), .patients-table td:nth-child(5) { width: 10%; }
+.patients-table th:nth-child(6), .patients-table td:nth-child(6) { width: 12%; }
 .data-table th { padding: 13px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
 .data-table td { padding: 13px 10px; border-bottom: 1px solid #eff1ef; white-space: nowrap; }
 .data-table tbody tr:last-child td { border-bottom: 0; }
@@ -313,6 +315,7 @@
 .table-person strong, .table-person small { display: block; }
 .table-person strong { font-size: 12.5px; }
 .table-person small { margin-top: 3px; color: var(--muted); font-size: 10.5px; }
+.last-reading-time { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
 .table-avatar { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 700; }
 .adherence-track { width: 66px; height: 6px; display: inline-flex; overflow: hidden; vertical-align: middle; border-radius: 6px; background: #edf0ed; }
 .adherence-track span { display: block; border-radius: inherit; background: var(--good); }
@@ -448,6 +451,7 @@
   .page-toolbar { align-items: flex-start; }
   .page-toolbar > .primary-button, .page-toolbar > .outline-button { align-self: flex-start; }
   .patients-toolbar { grid-template-columns: minmax(0, 1fr) auto; }
+  .patients-toolbar-actions { flex-wrap: wrap; justify-content: flex-end; }
   .profile-banner { align-items: flex-start; flex-direction: column; padding: 20px 16px; }
   .profile-actions { width: 100%; flex-wrap: wrap; }
   .profile-lower-grid { grid-template-columns: 1fr; }
@@ -474,7 +478,7 @@
   .page-toolbar { flex-wrap: wrap; }
   .patients-toolbar { grid-template-columns: 1fr; gap: 12px; }
   .patients-toolbar h1 { white-space: normal; }
-  .patients-toolbar > .primary-button { justify-self: start; }
+  .patients-toolbar-actions { justify-content: flex-start; }
   .profile-form-footer { align-items: flex-start; flex-direction: column; }
   .doctor-account-summary { grid-row: 1; }
   .page-toolbar > .select-filter { align-self: flex-start; }

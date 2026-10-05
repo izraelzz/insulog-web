@@ -3,6 +3,7 @@ export type AuthenticatedUser = {
   username: string
   email: string
   tipo_usuario: string
+  token: string
 }
 
 type LoginResponse = {
