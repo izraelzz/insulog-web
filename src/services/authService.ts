@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './apiConfig'
+
 export type AuthenticatedUser = {
   id: number
   username: string
@@ -21,7 +23,7 @@ export async function login(email: string, password: string): Promise<Authentica
   let response: Response
 
   try {
-    response = await fetch('/api/login', {
+    response = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: email, password }),
@@ -52,7 +54,7 @@ export async function registerDoctor(
   let response: Response
 
   try {
-    response = await fetch('/api/usuarios', {
+    response = await fetch(`${API_BASE_URL}/usuarios`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   AlertTriangle,
   ChartNoAxesCombined,
@@ -18,9 +18,10 @@ import PatientProfilePage from './dashboard/PatientProfilePage'
 import PatientRecordsPage from './dashboard/PatientRecordsPage'
 import PatientRegistrationPage from './dashboard/PatientRegistrationPage'
 import PatientsPage from './dashboard/PatientsPage'
+import ReportExportPage from './dashboard/ReportExportPage'
 import './DashboardPage.css'
 
-type Screen = 'dashboard' | 'cadastrar' | 'pacientes' | 'perfil' | 'registros' | 'alertas' | 'perfil-medico'
+type Screen = 'dashboard' | 'cadastrar' | 'pacientes' | 'perfil' | 'registros' | 'alertas' | 'perfil-medico' | 'relatorios'
 
 type DashboardPageProps = {
   user: AuthenticatedUser
@@ -33,6 +34,7 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
   const [patientsLoading, setPatientsLoading] = useState(true)
   const [patientsError, setPatientsError] = useState('')
   const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null)
+  const patientsRequestInProgress = useRef(false)
   const initials = user.username
     .trim()
     .split(/\s+/)
@@ -41,37 +43,64 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
     .join('')
     .toUpperCase()
 
+  const refreshPatients = useCallback(async (silent = false) => {
+    if (patientsRequestInProgress.current) return
+    patientsRequestInProgress.current = true
+
+    if (!silent) {
+      setPatientsLoading(true)
+      setPatientsError('')
+    }
+
+    try {
+      setPatients(await fetchDoctorPatients(user.token))
+      setPatientsError('')
+    } catch (error) {
+      if (!silent) {
+        setPatientsError(error instanceof Error ? error.message : 'Não foi possível carregar os pacientes.')
+      }
+    } finally {
+      patientsRequestInProgress.current = false
+      if (!silent) setPatientsLoading(false)
+    }
+  }, [user.token])
+
   useEffect(() => {
     let isCurrent = true
 
     fetchDoctorPatients(user.token)
       .then((result) => {
-        if (isCurrent) setPatients(result)
+        if (isCurrent) {
+          setPatients(result)
+          setPatientsError('')
+        }
       })
       .catch((error: unknown) => {
-        if (isCurrent) setPatientsError(error instanceof Error ? error.message : 'Não foi possível carregar os pacientes.')
+        if (isCurrent) {
+          setPatientsError(error instanceof Error ? error.message : 'Não foi possível carregar os pacientes.')
+        }
       })
       .finally(() => {
         if (isCurrent) setPatientsLoading(false)
       })
 
-    return () => { isCurrent = false }
-  }, [user.token])
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void refreshPatients(true)
+    }
+    const intervalId = window.setInterval(refreshWhenVisible, 15000)
+
+    window.addEventListener('focus', refreshWhenVisible)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+
+    return () => {
+      isCurrent = false
+      window.clearInterval(intervalId)
+      window.removeEventListener('focus', refreshWhenVisible)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+    }
+  }, [refreshPatients, user.token])
 
   const selectedPatient = patients.find((patient) => patient.id === selectedPatientId) ?? null
-
-  async function refreshPatients() {
-    setPatientsLoading(true)
-    setPatientsError('')
-
-    try {
-      setPatients(await fetchDoctorPatients(user.token))
-    } catch (error) {
-      setPatientsError(error instanceof Error ? error.message : 'Não foi possível carregar os pacientes.')
-    } finally {
-      setPatientsLoading(false)
-    }
-  }
 
   function renderActiveScreen() {
     switch (activeScreen) {
@@ -83,7 +112,7 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
           loading={patientsLoading}
           error={patientsError}
           onAddPatient={() => setActiveScreen('cadastrar')}
-          onRefresh={refreshPatients}
+          onRefresh={() => { void refreshPatients() }}
           onOpenProfile={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('perfil') }}
           onOpenRecords={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('registros') }}
         />
@@ -103,6 +132,13 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
           token={user.token}
           onBackToProfile={() => setActiveScreen('perfil')}
         /> : <p className="empty-results">Selecione um paciente vinculado para ver os registros.</p>
+      case 'relatorios':
+        return <ReportExportPage
+          patients={patients}
+          patientsLoading={patientsLoading}
+          patientsError={patientsError}
+          token={user.token}
+        />
       case 'alertas':
         return <PatientAlertsPage patients={patients} loading={patientsLoading} error={patientsError} onOpenProfile={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('perfil') }} />
       case 'perfil-medico':
@@ -139,7 +175,7 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
             <button className="nav-item" type="button"><History /> Histórico completo</button>
           </nav>
           <p className="nav-label">Análise</p>
-          <nav aria-label="Navegação de análise"><button className="nav-item" type="button"><ChartNoAxesCombined /> Relatórios</button></nav>
+          <nav aria-label="Navegação de análise"><button className={`nav-item ${activeScreen === 'relatorios' ? 'active' : ''}`} type="button" onClick={() => setActiveScreen('relatorios')}><ChartNoAxesCombined /> Relatórios</button></nav>
           <button className="doctor-profile" type="button" onClick={() => setActiveScreen('perfil-medico')} aria-label="Abrir perfil do médico">
             <span className="doctor-avatar">{initials}</span><span><strong>{user.username}</strong><small>{user.email}</small></span>
           </button>

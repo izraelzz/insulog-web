@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './apiConfig'
+
 export type PatientSituation = 'adequado' | 'atencao' | 'critico'
 
 export type DoctorPatient = {
@@ -30,7 +32,7 @@ async function request<T>(path: string, token: string, init?: RequestInit): Prom
   let response: Response
 
   try {
-    response = await fetch(`/api/medicos${path}`, {
+    response = await fetch(`${API_BASE_URL}/medicos${path}`, {
       ...init,
       headers: {
         Authorization: `Bearer ${token}`,

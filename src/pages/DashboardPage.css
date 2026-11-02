@@ -425,6 +425,33 @@
 .doctor-summary-status { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 20px; background: var(--good-soft); color: var(--good); font-size: 10.5px; font-weight: 700; }
 .doctor-summary-status > span { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+.report-export-form { display: grid; gap: 16px; max-width: 820px; }
+.report-export-card { padding: 20px; }
+.report-export-card .card-heading > svg { width: 18px; height: 18px; color: var(--primary); }
+.report-field { min-width: 0; display: grid; gap: 7px; color: var(--ink); font-size: 12px; font-weight: 700; }
+.report-field select, .report-field input { width: 100%; min-height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; outline: 0; background: #fff; color: var(--ink); font: inherit; font-size: 13px; }
+.report-field select:focus, .report-field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgb(47 122 82 / 10%); }
+.report-field select:disabled { background: var(--bg); color: var(--muted); cursor: not-allowed; }
+.report-period-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.report-period-presets .outline-button { min-height: 34px; }
+.report-date-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.report-format-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.report-format-option { min-width: 0; display: flex; align-items: center; gap: 11px; padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); cursor: pointer; }
+.report-format-option.selected { border-color: var(--primary); background: var(--primary-soft); }
+.report-format-option input { width: 16px; height: 16px; flex: 0 0 auto; accent-color: var(--primary); }
+.report-format-option > svg { width: 21px; height: 21px; flex: 0 0 auto; color: var(--primary); }
+.report-format-option span { min-width: 0; }
+.report-format-option strong, .report-format-option small { display: block; }
+.report-format-option strong { color: var(--ink); font-size: 12.5px; }
+.report-format-option small { margin-top: 3px; color: var(--muted); font-size: 10.5px; line-height: 1.4; }
+.report-hint { margin: 12px 0 0; color: var(--muted); font-size: 12px; }
+.report-feedback { margin: 0; padding: 11px 13px; border-radius: 9px; font-size: 12px; }
+.report-feedback.error { background: var(--urgent-soft); color: var(--urgent); }
+.report-feedback.success { background: var(--good-soft); color: var(--good); }
+.report-export-actions { display: flex; justify-content: flex-end; }
+.report-export-actions .primary-button { min-height: 42px; }
+.report-export-actions .primary-button:disabled { border-color: #9ab9a4; background: #9ab9a4; cursor: not-allowed; }
+
 @media (max-width: 1100px) {
   .dashboard-sidebar { width: 210px; flex-basis: 210px; }
   .dashboard-content { padding: 24px; }
@@ -456,6 +483,7 @@
   .profile-actions { width: 100%; flex-wrap: wrap; }
   .profile-lower-grid { grid-template-columns: 1fr; }
   .doctor-profile-layout { grid-template-columns: 1fr; }
+  .report-format-options { grid-template-columns: 1fr; }
   .chart { height: 225px; }
   .chart svg { height: 195px; }
   .alert-row { align-items: flex-start; flex-wrap: wrap; gap: 10px; }
@@ -482,6 +510,7 @@
   .profile-form-footer { align-items: flex-start; flex-direction: column; }
   .doctor-account-summary { grid-row: 1; }
   .page-toolbar > .select-filter { align-self: flex-start; }
+  .report-date-fields { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 600px) {
