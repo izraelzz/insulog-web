@@ -2,15 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   AlertTriangle,
   ChartNoAxesCombined,
-  ClipboardList,
-  History,
   LayoutDashboard,
-  UserPlus,
   UserRound,
   Users,
 } from 'lucide-react'
 import type { AuthenticatedUser } from '../services/authService'
 import { fetchDoctorPatients, type DoctorPatient } from '../services/patientService'
+import { formatPersonName } from '../utils/formatPersonName'
 import PatientAlertsPage from './dashboard/PatientAlertsPage'
 import DashboardHome from './dashboard/DashboardHome'
 import DoctorProfilePage from './dashboard/DoctorProfilePage'
@@ -35,6 +33,7 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
   const [patientsError, setPatientsError] = useState('')
   const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null)
   const patientsRequestInProgress = useRef(false)
+  const alertCount = patients.filter((patient) => patient.situacao !== 'adequado').length
   const initials = user.username
     .trim()
     .split(/\s+/)
@@ -150,6 +149,7 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
           patientsLoading={patientsLoading}
           patientsError={patientsError}
           onOpenAlerts={() => setActiveScreen('alertas')}
+          onOpenPatients={() => setActiveScreen('pacientes')}
           onOpenProfile={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('perfil') }}
         />
     }
@@ -157,27 +157,19 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
 
   return (
     <main className="dashboard-page">
-      <header className="portal-header">Insulog · Portal Médico</header>
       <div className="dashboard-layout">
         <aside className="dashboard-sidebar">
           <div className="brand"><span className="brand-mark">I</span><strong>Insulog</strong><small>Portal médico</small></div>
-          <p className="nav-label">Visão geral</p>
+          <p className="nav-label">Acompanhamento</p>
           <nav aria-label="Navegação principal">
-            <button className={`nav-item ${activeScreen === 'dashboard' ? 'active' : ''}`} type="button" onClick={() => setActiveScreen('dashboard')}><LayoutDashboard /> Dashboard</button>
-            <button className={`nav-item ${activeScreen === 'alertas' ? 'active' : ''}`} type="button" onClick={() => setActiveScreen('alertas')}><AlertTriangle /> Alertas <b>4</b></button>
+            <button className={`nav-item ${activeScreen === 'dashboard' ? 'active' : ''}`} type="button" aria-current={activeScreen === 'dashboard' ? 'page' : undefined} onClick={() => setActiveScreen('dashboard')}><LayoutDashboard /> Visão geral</button>
+            <button className={`nav-item ${['pacientes', 'cadastrar', 'perfil', 'registros'].includes(activeScreen) ? 'active' : ''}`} type="button" aria-current={['pacientes', 'cadastrar', 'perfil', 'registros'].includes(activeScreen) ? 'page' : undefined} onClick={() => setActiveScreen('pacientes')}><Users /> Pacientes</button>
+            <button className={`nav-item ${activeScreen === 'alertas' ? 'active' : ''}`} type="button" aria-current={activeScreen === 'alertas' ? 'page' : undefined} onClick={() => setActiveScreen('alertas')}><AlertTriangle /> Alertas {alertCount > 0 && <b>{alertCount}</b>}</button>
+            <button className={`nav-item ${activeScreen === 'relatorios' ? 'active' : ''}`} type="button" aria-current={activeScreen === 'relatorios' ? 'page' : undefined} onClick={() => setActiveScreen('relatorios')}><ChartNoAxesCombined /> Relatórios</button>
+            <button className={`nav-item mobile-nav-account ${activeScreen === 'perfil-medico' ? 'active' : ''}`} type="button" aria-current={activeScreen === 'perfil-medico' ? 'page' : undefined} onClick={() => setActiveScreen('perfil-medico')}><UserRound /> Conta</button>
           </nav>
-          <p className="nav-label">Pacientes</p>
-          <nav aria-label="Navegação de pacientes">
-            <button className={`nav-item ${activeScreen === 'pacientes' ? 'active' : ''}`} type="button" onClick={() => setActiveScreen('pacientes')}><Users /> Todos os pacientes</button>
-            <button className={`nav-item ${activeScreen === 'cadastrar' ? 'active' : ''}`} type="button" onClick={() => setActiveScreen('cadastrar')}><UserPlus /> Cadastrar paciente</button>
-            <button className={`nav-item ${activeScreen === 'perfil' ? 'active' : ''}`} type="button" onClick={() => setActiveScreen('perfil')}><UserRound /> Perfil do paciente</button>
-            <button className={`nav-item ${activeScreen === 'registros' ? 'active' : ''}`} type="button" onClick={() => setActiveScreen('registros')}><ClipboardList /> Registros</button>
-            <button className="nav-item" type="button"><History /> Histórico completo</button>
-          </nav>
-          <p className="nav-label">Análise</p>
-          <nav aria-label="Navegação de análise"><button className={`nav-item ${activeScreen === 'relatorios' ? 'active' : ''}`} type="button" onClick={() => setActiveScreen('relatorios')}><ChartNoAxesCombined /> Relatórios</button></nav>
           <button className="doctor-profile" type="button" onClick={() => setActiveScreen('perfil-medico')} aria-label="Abrir perfil do médico">
-            <span className="doctor-avatar">{initials}</span><span><strong>{user.username}</strong><small>{user.email}</small></span>
+            <span className="doctor-avatar">{initials}</span><span><strong>{formatPersonName(user.username)}</strong><small>{user.email}</small></span>
           </button>
         </aside>
         <section className="dashboard-content">{renderActiveScreen()}</section>

@@ -1,9 +1,9 @@
 :root {
-  --primary: #4c9a62;
-  --primary-dark: #3b7c4e;
-  --text: #1c2321;
-  --muted: #7a8580;
-  --border: #e6e9e7;
+  --primary: #244d3d;
+  --primary-dark: #173c33;
+  --text: #243d36;
+  --muted: #7a867d;
+  --border: #e0e6dc;
 }
 
 .login-page {
@@ -11,14 +11,16 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: linear-gradient(160deg, #4c9a62 0%, #3b7c4e 55%, #2e6440 100%);
+  background: linear-gradient(150deg, #173c33 0%, #244d3d 58%, #315c45 100%);
 }
 
 .login-card {
   width: min(100%, 400px);
   padding: 38px 34px;
-  border-radius: 24px;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 14px;
   background: #fff;
+  box-shadow: 0 24px 70px rgb(15 39 30 / 20%);
 }
 
 .login-logo {
@@ -27,7 +29,8 @@
   display: grid;
   place-items: center;
   margin: 0 auto 18px;
-  border-radius: 16px;
+  border: 1px solid #dfe9d9;
+  border-radius: 12px;
   background: var(--primary);
   color: #fff;
   font-size: 24px;
@@ -74,7 +77,7 @@
 
 .input-wrapper:focus-within {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgb(76 154 98 / 13%);
+  box-shadow: 0 0 0 3px rgb(36 77 61 / 12%);
 }
 
 .field-icon {
@@ -117,7 +120,7 @@
 .primary-link:focus-visible,
 .secondary-button:focus-visible,
 .primary-button:focus-visible {
-  outline: 3px solid rgb(76 154 98 / 30%);
+  outline: 3px solid rgb(36 77 61 / 30%);
   outline-offset: 2px;
 }
 
@@ -166,7 +169,7 @@
 .login-page .primary-button,
 .login-page .secondary-button {
   min-height: 45px;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
