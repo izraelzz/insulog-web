@@ -51,9 +51,6 @@ function GlycemiaTrendChart({ records }: GlycemiaTrendChartProps) {
         <g className="chart-grid">
           <path d="M58 38H988M58 82H988M58 126H988M58 170H988M58 214H988" />
         </g>
-        <g className="chart-y-labels">
-          <text x="0" y="42">180</text><text x="0" y="86">150</text><text x="0" y="130">120</text><text x="0" y="174">90</text><text x="0" y="218">60</text>
-        </g>
         <path className="chart-area" fill={`url(#${gradientId})`} d={areaPath} />
         <path className="chart-line" d={linePath} />
       </svg>
