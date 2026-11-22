@@ -19,6 +19,14 @@ type RegistrationResponse = {
   error?: string
 }
 
+export async function wakeApi(): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/`, { cache: 'no-store' })
+
+  if (!response.ok) {
+    throw new Error('Não foi possível conectar à API.')
+  }
+}
+
 export async function login(email: string, password: string): Promise<AuthenticatedUser> {
   let response: Response
 

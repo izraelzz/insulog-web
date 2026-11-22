@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { ArrowLeft, CalendarClock, Clock3, Droplet, Syringe } from 'lucide-react'
 import { fetchPatientRecords, type PatientGlucoseRecord } from '../../services/patientService'
 import { formatPersonName } from '../../utils/formatPersonName'
+import { getGlucoseLevel } from '../../utils/glucoseLevel'
 
 type PatientRecordsPageProps = {
   patientId: number
@@ -17,12 +18,6 @@ function formatRecordDate(value: string) {
 
 function formatRecordTime(value: string) {
   return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(value.replace(' ', 'T')))
-}
-
-function getGlucoseStatus(glucose: number) {
-  if (glucose < 70) return { text: 'Baixo', tone: 'urgent' }
-  if (glucose > 140) return { text: 'Acima da meta', tone: 'warn' }
-  return { text: 'No alvo', tone: 'good' }
 }
 
 function PatientRecordsPage({ patientId, patientName, token, onBackToProfile }: PatientRecordsPageProps) {
@@ -56,6 +51,11 @@ function PatientRecordsPage({ patientId, patientName, token, onBackToProfile }: 
     <>
       <header className="dashboard-header page-toolbar records-page-toolbar"><div><h1>Registros <span>· {formatPersonName(patientName)}</span></h1><p>Glicose e insulina registradas pelo aplicativo</p></div><button className="outline-button back-button" type="button" onClick={onBackToProfile}><ArrowLeft /><span>Voltar ao perfil</span><span className="mobile-back-label">Perfil</span></button></header>
       <div className="directory-filters records-filters"><span className="filter-caption"><CalendarClock />Todos os registros</span><label className="select-filter"><span>Momento</span><select value={moment} onChange={(event) => setMoment(event.target.value)}><option>Todos</option>{moments.map((period) => <option key={period}>{period}</option>)}</select></label></div>
+      <div className="glucose-legend" aria-label="Classificação das cores de glicose">
+        <span><i className="good" aria-hidden="true" />Verde: 70–140 mg/dL</span>
+        <span><i className="warn" aria-hidden="true" />Amarelo: 141–180 mg/dL</span>
+        <span><i className="urgent" aria-hidden="true" />Vermelho: abaixo de 70 ou acima de 180 mg/dL</span>
+      </div>
       {!loading && !error && <>
         <div className="mobile-records-summary" aria-label="Resumo dos registros filtrados">
           <article><span>Registros</span><strong>{filteredRecords.length}</strong></article>
@@ -78,7 +78,7 @@ function PatientRecordsPage({ patientId, patientName, token, onBackToProfile }: 
         {loading ? <p className="empty-results" role="status">Carregando registros...</p> : <>
           <div className="mobile-record-list">
             {filteredRecords.map((record) => {
-              const status = getGlucoseStatus(record.nivel_glicose)
+              const status = getGlucoseLevel(record.nivel_glicose)
               return (
                 <article className={`mobile-record-card ${status.tone}`} key={record.id_registro}>
                   <div className="mobile-record-heading">
@@ -87,11 +87,11 @@ function PatientRecordsPage({ patientId, patientName, token, onBackToProfile }: 
                       <strong>{formatRecordDate(record.data_hora)}</strong>
                       <span><Clock3 aria-hidden="true" />{formatRecordTime(record.data_hora)}</span>
                     </div>
-                    <span className={`status-badge ${status.tone}`}>{status.text}</span>
+                    <span className={`status-badge ${status.tone}`}>{status.label}</span>
                   </div>
                   <div className="mobile-record-reading">
                     <span>Glicemia</span>
-                    <strong>{record.nivel_glicose}<small>mg/dL</small></strong>
+                    <strong className={`glucose-value ${status.tone}`}>{record.nivel_glicose}<small>mg/dL</small></strong>
                   </div>
                   <div className="mobile-record-details">
                     <span className="moment-badge">{record.periodo || 'Sem momento'}</span>
@@ -105,7 +105,7 @@ function PatientRecordsPage({ patientId, patientName, token, onBackToProfile }: 
             })}
           </div>
           <div className="responsive-table"><table className="data-table"><thead><tr><th>Data</th><th>Horário</th><th>Momento</th><th>Glicose</th><th>Insulina</th><th>Status</th></tr></thead><tbody>
-          {filteredRecords.map((record) => { const status = getGlucoseStatus(record.nivel_glicose); return <tr key={record.id_registro}><td>{formatRecordDate(record.data_hora)}</td><td>{formatRecordTime(record.data_hora)}</td><td><span className="moment-badge">{record.periodo || '—'}</span></td><td className="glucose-value">{record.nivel_glicose} mg/dL</td><td>{record.insulina || '—'}</td><td><span className={`status-badge ${status.tone}`}>{status.text}</span></td></tr> })}
+          {filteredRecords.map((record) => { const status = getGlucoseLevel(record.nivel_glicose); return <tr key={record.id_registro}><td>{formatRecordDate(record.data_hora)}</td><td>{formatRecordTime(record.data_hora)}</td><td><span className="moment-badge">{record.periodo || '—'}</span></td><td className={`glucose-value ${status.tone}`}>{record.nivel_glicose} mg/dL</td><td>{record.insulina || '—'}</td><td><span className={`status-badge ${status.tone}`}>{status.label}</span></td></tr> })}
         </tbody></table></div>
         </>}
         {!loading && !error && filteredRecords.length === 0 && <p className="empty-results">Nenhum registro encontrado para esse momento.</p>}

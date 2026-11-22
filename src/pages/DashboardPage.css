@@ -108,6 +108,8 @@
 .nav-item.active { background: #c7e4b1; color: #173c33; }
 .nav-item:hover:not(.active) { background: #234b40; color: #fff; }
 .nav-item:focus-visible, .doctor-profile:focus-visible { outline: 3px solid #c7e4b1; outline-offset: 2px; }
+.logout-item { margin-top: 10px; }
+.logout-item:hover:not(.active) { background: #5b332f; color: #fff; }
 
 .doctor-profile {
   width: 100%;
@@ -267,6 +269,9 @@
 .chart-line { fill: none; stroke: #315c45; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .chart-point-markers { position: absolute; top: 0; left: 0; width: 100%; height: 220px; pointer-events: none; }
 .chart-point-marker { position: absolute; width: 8px; height: 8px; transform: translate(-50%, -50%); border: 2px solid var(--surface); border-radius: 50%; background: #315c45; }
+.chart-point-marker.good { background: var(--good); }
+.chart-point-marker.warn { background: var(--warn); }
+.chart-point-marker.urgent { background: var(--urgent); }
 .chart-labels { display: flex; justify-content: space-between; padding: 2px 0 0 5.8%; color: #89968c; font-size: 10.5px; }
 .patient-registration-header { margin-bottom: 20px; }
 .registration-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); align-items: start; gap: 18px; }
@@ -388,11 +393,20 @@
 .note-row p { margin: 4px 0 0; color: var(--muted); font-size: 10.5px; line-height: 1.5; }
 
 .records-filters { justify-content: flex-start; }
+.glucose-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: -4px 0 16px; color: var(--muted); font-size: 11px; }
+.glucose-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.glucose-legend i { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; }
+.glucose-legend i.good { background: var(--good); }
+.glucose-legend i.warn { background: var(--warn); }
+.glucose-legend i.urgent { background: var(--urgent); }
 .filter-caption { min-height: 38px; display: inline-flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--muted); font-size: 11.5px; font-weight: 600; }
 .filter-caption svg { width: 15px; height: 15px; }
 .records-card .data-table { min-width: 680px; }
 .moment-badge { display: inline-block; padding: 5px 8px; border-radius: 7px; background: #f0f2f0; color: #58635c; font-size: 10.5px; font-weight: 600; }
 .glucose-value { font-weight: 700; }
+.glucose-value.good { color: var(--good); }
+.glucose-value.warn { color: #9a6a16; }
+.glucose-value.urgent { color: var(--urgent); }
 .mobile-back-label, .mobile-records-summary, .mobile-record-filters, .mobile-record-list { display: none; }
 .back-button { display: inline-flex; align-items: center; gap: 7px; }
 .back-button svg { width: 15px; height: 15px; }
@@ -427,14 +441,10 @@
 .profile-input-wrap:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgb(36 77 61 / 10%); }
 .profile-input-wrap svg { width: 16px; height: 16px; flex: 0 0 auto; }
 .profile-input-wrap input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 13px; }
-.doctor-profile-form input[autocomplete="name"] { text-transform: capitalize; }
+.profile-readonly-value { color: var(--ink); font-size: 13px; font-weight: 500; }
+.profile-readonly-value > span { min-width: 0; overflow-wrap: anywhere; }
 .account-type { min-height: 42px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 600; }
 .account-type svg { width: 16px; height: 16px; color: var(--primary); }
-.profile-form-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-top: 15px; border-top: 1px solid var(--line); }
-.profile-form-footer > div { display: flex; flex-wrap: wrap; gap: 8px; }
-.profile-form-footer .outline-button, .profile-form-footer .primary-button { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: auto; }
-.profile-form-footer svg { width: 15px; height: 15px; }
-.profile-feedback { color: var(--good); font-size: 11.5px; }
 .doctor-account-summary { display: flex; flex-direction: column; align-items: center; padding: 24px 18px; text-align: center; }
 .doctor-summary-avatar { width: 68px; height: 68px; display: grid; place-items: center; margin-bottom: 13px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 20px; font-weight: 800; }
 .doctor-account-summary > p { max-width: 100%; margin: 5px 0 15px; overflow-wrap: anywhere; color: var(--muted); font-size: 12px; }
@@ -499,10 +509,11 @@
   .dashboard-layout { min-height: 0; display: block; }
   .dashboard-sidebar { position: fixed; z-index: 20; inset: auto 0 0; width: 100%; height: auto; display: block; padding: 7px 8px calc(7px + env(safe-area-inset-bottom)); overflow: visible; border-top: 1px solid #36564b; background: #173c33; }
   .dashboard-sidebar .brand, .dashboard-sidebar .nav-label, .dashboard-sidebar .doctor-profile { display: none; }
-  .dashboard-sidebar nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 0; overflow: visible; }
+  .dashboard-sidebar nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 0; overflow: visible; }
   .dashboard-sidebar .nav-item { position: relative; width: 100%; min-width: 0; min-height: 56px; display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; margin: 0; padding: 5px 2px; border-radius: 10px; font-size: 10px; line-height: 1.15; text-align: center; white-space: nowrap; }
   .dashboard-sidebar .nav-item svg { width: 20px; height: 20px; }
   .dashboard-sidebar .nav-item b { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; margin: 0; padding: 2px 4px; text-align: center; }
+  .dashboard-sidebar .logout-item { margin-top: 0; }
   .dashboard-content { width: 100%; max-width: none; padding: 24px 18px calc(94px + env(safe-area-inset-bottom)); }
   .dashboard-header { flex-direction: row; align-items: flex-start; margin-bottom: 20px; }
   .dashboard-header p { color: var(--muted); }
@@ -899,16 +910,10 @@
   .doctor-edit-heading h2 { font-size: 13px; }
   .doctor-edit-heading p { display: none; }
   .doctor-profile-form { gap: 13px; padding-top: 14px; }
-  .account-type-field { display: none; }
+  .account-type-field { display: grid; }
   .profile-field { gap: 6px; font-size: 10px; }
   .profile-input-wrap { min-height: 46px; border-radius: 11px; }
   .profile-input-wrap input { font-size: 16px; }
-  .profile-form-footer { align-items: stretch; gap: 9px; padding-top: 12px; }
-  .profile-form-footer > div { display: grid; grid-template-columns: auto minmax(0, 1fr); width: 100%; gap: 8px; }
-  .profile-form-footer .outline-button, .profile-form-footer .primary-button { min-height: 44px; padding: 8px 10px; border-radius: 10px; font-size: 10px; }
-  .profile-form-footer .outline-button { gap: 5px; }
-  .profile-form-footer .primary-button { width: 100%; }
-  .profile-feedback { font-size: 10px; }
 }
 
 @media (max-width: 360px) {

@@ -4,6 +4,7 @@ import { fetchPatientRecords, type PatientGlucoseRecord } from '../../services/p
 import { downloadPatientReport, type ReportFormat } from '../../services/reportService'
 import type { DoctorPatient } from '../../services/patientService'
 import { formatPersonName } from '../../utils/formatPersonName'
+import { getGlucoseLevel } from '../../utils/glucoseLevel'
 
 type ReportExportPageProps = {
   patients: DoctorPatient[]
@@ -274,7 +275,7 @@ function ReportExportPage({ patients, patientsLoading, patientsError, token }: R
                       <tr key={record.id_registro}>
                         <td>{formatRecordDateTime(record.data_hora)}</td>
                         <td>{record.periodo || '—'}</td>
-                        <td className="glucose-value">{record.nivel_glicose} mg/dL</td>
+                        <td className={`glucose-value ${getGlucoseLevel(record.nivel_glicose).tone}`}>{record.nivel_glicose} mg/dL</td>
                         <td>{record.insulina || '—'}</td>
                       </tr>
                     ))}

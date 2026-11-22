@@ -205,6 +205,16 @@
   font-size: 13px;
 }
 
+.api-warmup-status {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.api-warmup-status.unavailable {
+  color: #b42318;
+}
+
 .divider {
   display: flex;
   align-items: center;

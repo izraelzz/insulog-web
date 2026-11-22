@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { login, registerDoctor } from '../services/authService'
+import { login, registerDoctor, wakeApi } from '../services/authService'
 import './LoginPage.css'
 
 type LoginPageProps = {
-  onLogin: (user: Awaited<ReturnType<typeof login>>) => void
+  onLogin: (user: Awaited<ReturnType<typeof login>>, rememberMe: boolean) => void
 }
 
 function MailIcon() {
@@ -35,6 +35,16 @@ function LoginPage({ onLogin }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [apiStatus, setApiStatus] = useState<'connecting' | 'ready' | 'unavailable'>('connecting')
+  const apiWarmup = useRef<Promise<void> | null>(null)
+
+  useEffect(() => {
+    const warmup = wakeApi()
+    apiWarmup.current = warmup
+    warmup
+      .then(() => setApiStatus('ready'))
+      .catch(() => setApiStatus('unavailable'))
+  }, [])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -51,9 +61,14 @@ function LoginPage({ onLogin }: LoginPageProps) {
         return
       }
 
+      try {
+        await (apiWarmup.current ?? wakeApi())
+      } catch {
+        setApiStatus('unavailable')
+      }
       const user = await login(email, password)
       setIsSubmitting(false)
-      onLogin(user)
+      onLogin(user, rememberMe)
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Ocorreu um erro ao entrar.')
       setIsSubmitting(false)
@@ -68,6 +83,11 @@ function LoginPage({ onLogin }: LoginPageProps) {
         <p className="login-subtitle">{isRegistering ? 'Crie seu acesso profissional' : 'Gestão de pacientes'}</p>
 
         <form onSubmit={handleSubmit}>
+          {!isRegistering && apiStatus !== 'ready' && (
+            <p className={`api-warmup-status ${apiStatus}`} role="status">
+              {apiStatus === 'connecting' ? 'Conectando ao servidor...' : 'Não foi possível iniciar a conexão. O login tentará novamente.'}
+            </p>
+          )}
           {isRegistering && (
             <>
               <div className="form-field">
@@ -159,15 +179,6 @@ function LoginPage({ onLogin }: LoginPageProps) {
             {isSubmitting ? (isRegistering ? 'Criando conta...' : 'Entrando...') : (isRegistering ? 'Criar conta médica' : 'Entrar')}
           </button>
         </form>
-
-        {!isRegistering && <>
-        <div className="divider" role="separator"><span>CRM verificado por</span></div>
-
-        <div className="secondary-actions">
-          <button type="button" className="secondary-button">CFM SSO</button>
-          <button type="button" className="secondary-button">Token</button>
-        </div>
-        </>}
 
         <p className="login-footer">
           {isRegistering ? 'Já tem uma conta? ' : 'Ainda não tem conta? '}

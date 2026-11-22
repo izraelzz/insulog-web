@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import type { PatientGlucoseRecord } from '../../services/patientService'
+import { getGlucoseLevel } from '../../utils/glucoseLevel'
 
 type GlycemiaTrendChartProps = { records: PatientGlucoseRecord[] }
 
@@ -57,7 +58,7 @@ function GlycemiaTrendChart({ records }: GlycemiaTrendChartProps) {
       <div className="chart-point-markers" aria-hidden="true">
         {points.map((point, index) => (
           <span
-            className="chart-point-marker"
+            className={`chart-point-marker ${getGlucoseLevel(point.value).tone}`}
             key={`${point.date}-${index}`}
             style={{ left: `${point.x / 10}%`, top: `${point.y / 250 * 100}%` }}
             title={`${point.value} mg/dL`}
