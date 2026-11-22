@@ -389,6 +389,7 @@
 .note-marker { width: 8px; height: 8px; flex: 0 0 auto; margin-top: 4px; border-radius: 50%; background: var(--info); }
 .note-marker.good { background: var(--good); }
 .note-marker.warn { background: var(--warn); }
+.note-marker.urgent { background: var(--urgent); }
 .note-row strong { color: var(--ink); font-size: 11.5px; }
 .note-row p { margin: 4px 0 0; color: var(--muted); font-size: 10.5px; line-height: 1.5; }
 
