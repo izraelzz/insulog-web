@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ClipboardList, RefreshCw, Search, UserPlus } from 'lucide-react'
+import { ClipboardList, RefreshCw, Search, UserPlus, UserRound } from 'lucide-react'
 import type { DoctorPatient, PatientSituation } from '../../services/patientService'
 import { formatPersonName } from '../../utils/formatPersonName'
 import { getGlucoseLevel } from '../../utils/glucoseLevel'
@@ -69,7 +69,7 @@ function PatientsPage({ patients, loading, error, onAddPatient, onRefresh, onOpe
             {shownPatients.map((patient) => (
               <article className={`mobile-patient-card ${patient.situacao}`} key={patient.id}>
                 <div className="mobile-patient-card-heading">
-                  <span className="table-avatar">{patient.nome.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</span>
+                  <span className="table-avatar"><UserRound aria-hidden="true" /></span>
                   <div className="mobile-patient-identity">
                     <strong>{formatPersonName(patient.nome)}</strong>
                     <small>{patient.registros_7_dias} {patient.registros_7_dias === 1 ? 'medição' : 'medições'} nesta semana</small>
@@ -92,7 +92,7 @@ function PatientsPage({ patients, loading, error, onAddPatient, onRefresh, onOpe
           </div>
           <div className="responsive-table"><table className="data-table patients-table"><thead><tr><th>Paciente</th><th>Média em 7 dias</th><th>Registros em 7 dias</th><th>Última leitura</th><th>Situação</th><th>Ações</th></tr></thead>
           <tbody>{shownPatients.map((patient) => <tr key={patient.id}>
-            <td data-label="Paciente"><span className="table-person"><span className="table-avatar">{patient.nome.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</span><span><strong>{formatPersonName(patient.nome)}</strong><small className="patient-email">{patient.email}</small></span></span></td>
+            <td data-label="Paciente"><span className="table-person"><span className="table-avatar"><UserRound aria-hidden="true" /></span><span><strong>{formatPersonName(patient.nome)}</strong><small className="patient-email">{patient.email}</small></span></span></td>
             <td data-label="Média em 7 dias">{patient.media_glicose_7_dias === null ? '—' : `${Math.round(patient.media_glicose_7_dias)} mg/dL`}</td>
             <td data-label="7 dias">{patient.registros_7_dias}</td>
             <td data-label="Última leitura"><span className={patient.ultima_glicose === null ? undefined : `glucose-value ${getGlucoseLevel(patient.ultima_glicose).tone}`}>{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}</span><small className="last-reading-time">{formatLastReading(patient.ultimo_registro)}</small></td>
