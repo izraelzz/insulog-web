@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   ChartNoAxesCombined,
   LayoutDashboard,
+  LogOut,
   UserRound,
   Users,
 } from 'lucide-react'
@@ -23,10 +24,10 @@ type Screen = 'dashboard' | 'cadastrar' | 'pacientes' | 'perfil' | 'registros' |
 
 type DashboardPageProps = {
   user: AuthenticatedUser
-  onUpdateUser: (updatedUser: AuthenticatedUser) => void
+  onLogout: () => void
 }
 
-function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
+function DashboardPage({ user, onLogout }: DashboardPageProps) {
   const [activeScreen, setActiveScreen] = useState<Screen>('dashboard')
   const [patients, setPatients] = useState<DoctorPatient[]>([])
   const [patientsLoading, setPatientsLoading] = useState(true)
@@ -141,7 +142,7 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
       case 'alertas':
         return <PatientAlertsPage patients={patients} loading={patientsLoading} error={patientsError} onOpenProfile={(patientId) => { setSelectedPatientId(patientId); setActiveScreen('perfil') }} />
       case 'perfil-medico':
-        return <DoctorProfilePage user={user} onSave={onUpdateUser} onCancel={() => setActiveScreen('dashboard')} />
+        return <DoctorProfilePage user={user} />
       default:
         return <DashboardHome
           username={user.username}
@@ -167,6 +168,7 @@ function DashboardPage({ user, onUpdateUser }: DashboardPageProps) {
             <button className={`nav-item ${activeScreen === 'alertas' ? 'active' : ''}`} type="button" aria-current={activeScreen === 'alertas' ? 'page' : undefined} onClick={() => setActiveScreen('alertas')}><AlertTriangle /> Alertas {alertCount > 0 && <b>{alertCount}</b>}</button>
             <button className={`nav-item ${activeScreen === 'relatorios' ? 'active' : ''}`} type="button" aria-current={activeScreen === 'relatorios' ? 'page' : undefined} onClick={() => setActiveScreen('relatorios')}><ChartNoAxesCombined /> Relatórios</button>
             <button className={`nav-item mobile-nav-account ${activeScreen === 'perfil-medico' ? 'active' : ''}`} type="button" aria-current={activeScreen === 'perfil-medico' ? 'page' : undefined} onClick={() => setActiveScreen('perfil-medico')}><UserRound /> Conta</button>
+            <button className="nav-item logout-item" type="button" onClick={onLogout}><LogOut /> Sair</button>
           </nav>
           <button className="doctor-profile" type="button" onClick={() => setActiveScreen('perfil-medico')} aria-label="Abrir perfil do médico">
             <span className="doctor-avatar">{initials}</span><span><strong>{formatPersonName(user.username)}</strong><small>{user.email}</small></span>

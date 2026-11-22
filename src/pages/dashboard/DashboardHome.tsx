@@ -2,6 +2,7 @@ import { Activity, ArrowRight, CalendarClock, CircleCheck, Droplet, Users } from
 import type { LucideIcon } from 'lucide-react'
 import type { DoctorPatient, PatientSituation } from '../../services/patientService'
 import { formatPersonName } from '../../utils/formatPersonName'
+import { getGlucoseLevel } from '../../utils/glucoseLevel'
 
 type Tone = 'info' | 'urgent' | 'warn' | 'good'
 
@@ -65,7 +66,8 @@ function DashboardHome({
     })
   const priorityPatients = patientsRequiringAttention.slice(0, 4)
   const recentPatients = patients
-    .filter((patient) => patient.situacao === 'adequado' && patient.ultimo_registro && patient.ultima_glicose !== null)
+    .filter((patient): patient is DoctorPatient & { ultima_glicose: number } =>
+      patient.situacao === 'adequado' && patient.ultimo_registro !== null && patient.ultima_glicose !== null)
     .sort((first, second) => getTimestamp(second.ultimo_registro) - getTimestamp(first.ultimo_registro))
     .slice(0, 5)
   const weeklyReadings = patients.reduce((total, patient) => total + patient.registros_7_dias, 0)
@@ -115,7 +117,7 @@ function DashboardHome({
                       <span>{patient.motivo_situacao}</span>
                     </div>
                     <div className="mobile-overview-patient-reading">
-                      <strong>{patient.ultima_glicose === null ? '—' : patient.ultima_glicose}</strong>
+                      <strong className={patient.ultima_glicose === null ? undefined : `glucose-value ${getGlucoseLevel(patient.ultima_glicose).tone}`}>{patient.ultima_glicose === null ? '—' : patient.ultima_glicose}</strong>
                       <span>mg/dL</span>
                     </div>
                     <button className="mobile-overview-open" type="button" aria-label={`Abrir perfil de ${formatPersonName(patient.nome)}`} onClick={() => onOpenProfile(patient.id)}>
@@ -155,7 +157,7 @@ function DashboardHome({
                       <strong>{formatPersonName(patient.nome)}</strong>
                       <small>{formatLastReading(patient.ultimo_registro)}</small>
                     </span>
-                    <strong className="mobile-overview-recent-reading">{patient.ultima_glicose} <small>mg/dL</small></strong>
+                    <strong className={`mobile-overview-recent-reading glucose-value ${getGlucoseLevel(patient.ultima_glicose).tone}`}>{patient.ultima_glicose} <small>mg/dL</small></strong>
                   </button>
                 ))}
               </div>
@@ -201,7 +203,7 @@ function DashboardHome({
                     <span>{patient.motivo_situacao}</span>
                   </div>
                   <div className="dashboard-priority-reading">
-                    <strong>{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}</strong>
+                    <strong className={patient.ultima_glicose === null ? undefined : `glucose-value ${getGlucoseLevel(patient.ultima_glicose).tone}`}>{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}</strong>
                     <span>{formatLastReading(patient.ultimo_registro)}</span>
                   </div>
                   <span className={`status-badge ${patient.situacao === 'critico' ? 'urgent' : 'warn'}`}>{situationLabels[patient.situacao]}</span>
@@ -237,7 +239,7 @@ function DashboardHome({
                 <button className="dashboard-recent-row" type="button" key={patient.id} onClick={() => onOpenProfile(patient.id)}>
                   <span className={`dashboard-recent-icon ${patient.situacao}`}><Droplet aria-hidden="true" /></span>
                   <span className="dashboard-recent-patient"><strong>{formatPersonName(patient.nome)}</strong><small>{formatLastReading(patient.ultimo_registro)}</small></span>
-                  <strong className="dashboard-recent-value">{patient.ultima_glicose} <small>mg/dL</small></strong>
+                  <strong className={`dashboard-recent-value glucose-value ${getGlucoseLevel(patient.ultima_glicose).tone}`}>{patient.ultima_glicose} <small>mg/dL</small></strong>
                   <span className={`status-badge ${patient.situacao === 'critico' ? 'urgent' : patient.situacao === 'atencao' ? 'warn' : 'good'}`}>{situationLabels[patient.situacao]}</span>
                   <ArrowRight className="dashboard-recent-arrow" aria-hidden="true" />
                 </button>

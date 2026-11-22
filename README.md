@@ -10,6 +10,11 @@ Em desenvolvimento, `npm run dev` encaminha as chamadas `/api` para o backend no
 Para apontar para outra API durante o desenvolvimento, defina `VITE_API_URL` no ambiente
 antes de iniciar o Vite; sem essa variável, o proxy local é usado.
 
+Ao abrir a tela de login, o front-end consulta a rota `/` da API para iniciar a conexão
+antecipadamente. Se o serviço do Render estiver suspenso por inatividade, essa primeira
+inicialização ainda pode demorar; manter a instância sempre ativa no Render é a forma
+de evitar esse tempo de espera.
+
 Na build de produção, a API padrão é `https://insulog-back-supa.onrender.com`.
 Para trocar o endereço, configure a variável `VITE_API_URL` no serviço que gera/publica
 o front-end e faça uma nova build. Como a chamada em produção é feita diretamente do

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AlertTriangle, CalendarClock } from 'lucide-react'
 import type { DoctorPatient } from '../../services/patientService'
 import { formatPersonName } from '../../utils/formatPersonName'
+import { getGlucoseLevel } from '../../utils/glucoseLevel'
 
 type PatientAlertsPageProps = {
   patients: DoctorPatient[]
@@ -50,7 +51,7 @@ function PatientAlertsPage({ patients, loading, error, onOpenProfile }: PatientA
           <span className={`mobile-alert-avatar ${tone}`}>{patient.nome.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</span>
           <div className="alert-copy"><div className="alert-title-line"><h2>{title}</h2></div><p><strong>{formatPersonName(patient.nome)}</strong> <span>{patient.motivo_situacao}</span></p></div>
           <span className={`status-badge ${tone} alert-severity`}>{severityLabels[tone]}</span>
-          <strong className="alert-reading">{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}</strong>
+          <strong className={patient.ultima_glicose === null ? 'alert-reading' : `alert-reading glucose-value ${getGlucoseLevel(patient.ultima_glicose).tone}`}>{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}</strong>
           <time>{readingTime}</time><button className="outline-button" type="button" onClick={() => onOpenProfile(patient.id)}>Perfil</button>
         </article>
       })}</section>}

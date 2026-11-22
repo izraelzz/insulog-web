@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ClipboardList, RefreshCw, Search, UserPlus } from 'lucide-react'
 import type { DoctorPatient, PatientSituation } from '../../services/patientService'
 import { formatPersonName } from '../../utils/formatPersonName'
+import { getGlucoseLevel } from '../../utils/glucoseLevel'
 
 type PatientsPageProps = {
   patients: DoctorPatient[]
@@ -79,7 +80,7 @@ function PatientsPage({ patients, loading, error, onAddPatient, onRefresh, onOpe
                 </div>
                 <div className="mobile-patient-reading">
                   <span>Última leitura</span>
-                  <strong>{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}</strong>
+                  <strong className={patient.ultima_glicose === null ? undefined : `glucose-value ${getGlucoseLevel(patient.ultima_glicose).tone}`}>{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}</strong>
                   <small>{formatLastReading(patient.ultimo_registro)}</small>
                 </div>
                 <div className="mobile-patient-actions">
@@ -94,7 +95,7 @@ function PatientsPage({ patients, loading, error, onAddPatient, onRefresh, onOpe
             <td data-label="Paciente"><span className="table-person"><span className="table-avatar">{patient.nome.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}</span><span><strong>{formatPersonName(patient.nome)}</strong><small className="patient-email">{patient.email}</small></span></span></td>
             <td data-label="Média em 7 dias">{patient.media_glicose_7_dias === null ? '—' : `${Math.round(patient.media_glicose_7_dias)} mg/dL`}</td>
             <td data-label="7 dias">{patient.registros_7_dias}</td>
-            <td data-label="Última leitura">{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}<small className="last-reading-time">{formatLastReading(patient.ultimo_registro)}</small></td>
+            <td data-label="Última leitura"><span className={patient.ultima_glicose === null ? undefined : `glucose-value ${getGlucoseLevel(patient.ultima_glicose).tone}`}>{patient.ultima_glicose === null ? '—' : `${patient.ultima_glicose} mg/dL`}</span><small className="last-reading-time">{formatLastReading(patient.ultimo_registro)}</small></td>
             <td data-label="Situação"><span className={`status-badge ${patient.situacao === 'critico' ? 'urgent' : patient.situacao === 'atencao' ? 'warn' : 'good'}`}>{situationLabels[patient.situacao]}</span></td>
             <td data-label="Ações"><div className="table-actions"><button className="outline-button" type="button" onClick={() => onOpenProfile(patient.id)}>Perfil</button><button className="icon-button" type="button" aria-label={`Ver registros de ${formatPersonName(patient.nome)}`} onClick={() => onOpenRecords(patient.id)}><ClipboardList /></button></div></td>
           </tr>)}</tbody>
