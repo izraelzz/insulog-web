@@ -51,11 +51,6 @@ function PatientRecordsPage({ patientId, patientName, token, onBackToProfile }: 
     <>
       <header className="dashboard-header page-toolbar records-page-toolbar"><div><h1>Registros <span>· {formatPersonName(patientName)}</span></h1><p>Glicose e insulina registradas pelo aplicativo</p></div><button className="outline-button back-button" type="button" onClick={onBackToProfile}><ArrowLeft /><span>Voltar ao perfil</span><span className="mobile-back-label">Perfil</span></button></header>
       <div className="directory-filters records-filters"><span className="filter-caption"><CalendarClock />Todos os registros</span><label className="select-filter"><span>Momento</span><select value={moment} onChange={(event) => setMoment(event.target.value)}><option>Todos</option>{moments.map((period) => <option key={period}>{period}</option>)}</select></label></div>
-      <div className="glucose-legend" aria-label="Classificação das cores de glicose">
-        <span><i className="good" aria-hidden="true" />Verde: 70–140 mg/dL</span>
-        <span><i className="warn" aria-hidden="true" />Amarelo: 141–180 mg/dL</span>
-        <span><i className="urgent" aria-hidden="true" />Vermelho: abaixo de 70 ou acima de 180 mg/dL</span>
-      </div>
       {!loading && !error && <>
         <div className="mobile-records-summary" aria-label="Resumo dos registros filtrados">
           <article><span>Registros</span><strong>{filteredRecords.length}</strong></article>
