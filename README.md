@@ -25,3 +25,15 @@ na configuração de CORS.
 npm install
 npm run dev
 ```
+
+## Testes e CI
+
+Execute os testes unitários, o lint e o build localmente com:
+
+```sh
+npm test
+npm run lint
+npm run build
+```
+
+O GitHub Actions executa essas verificações em cada push e pull request.
